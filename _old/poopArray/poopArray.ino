@@ -1,12 +1,7 @@
 /*
 Read from a private channel on Adafruit IO
-device ID: 310049001047343432313031
+
 //http://core-electronics.com.au/tutorials/using-neopixels-with-particle.html
-*/
-/*
-* STILL TO DO:
-* Timer logic: the pixels go back to a rest state after X minutes
-* Voltage reader: Tell me the battery life left
 */
 
 /* ======================= INCLUDES ================================= */
@@ -21,13 +16,11 @@ TCPClient client;
 /* ======================= IO SETUP ================================= */
 #define AIO_SERVER      "io.adafruit.com"       // server
 #define AIO_SERVERPORT  8883                   // use 8883 for SSL / 1883 not
-#define AIO_USERNAME    "name"              // username
+#define AIO_USERNAME    "you"              // username
 #define AIO_KEY         "key"    // adafruit key
 
 Adafruit_IO_Client aio = Adafruit_IO_Client(client, AIO_KEY);
-//current gas reading
-Adafruit_IO_Feed gasVal = aio.getFeed("gasReading");
-Adafruit_IO_Feed batLevel = aio.getFeed("particleBattery");
+Adafruit_IO_Feed gasVal = aio.getFeed("gasReading"); //gasReading
 /* ======================= NEOPATTERNS CLASS ================================= */
 
 
@@ -331,12 +324,12 @@ class NeoPatterns : public Adafruit_NeoPixel
 
 /* ======================= NEOPATTERNS ================================= */
 
-NeoPatterns Strip1(16, 2, &Strip1Complete);
+NeoPatterns Strip1(6, 2, &Strip1Complete);
 
 
 /* ======================= VARIABLES ================================= */
 
-int getRate = 6000;         // every minute
+int getRate = 10000;         // every 10 seconds
 int lastGet;                // last time you retrieved
 
 
@@ -348,23 +341,9 @@ int BASE_THRESHOLD = 80;            // base THRESHOLD
 int currentReading;
 int speed = 2000;   // make a new interval for animation
 
-elapsedMillis timer0;
-#define interval 5000
-boolean timer0Fired;
-
 /* ======================= POOP ARRAY ================================= */
 
 void setup(){
-  // Turn off the god damn LED
-  RGB.control(true);
-  if( RGB.controlled() == true ) {
-    RGB.color(0, 0, 0);
-  }
-  else
-  {
-    Serial.println(F("You don't have LED control"));
-  }
-
   Serial.begin(115200);
   delay(10);
   Serial.println(); Serial.println();
@@ -375,56 +354,48 @@ void setup(){
   //Strip1.ColorWipe(Strip1.Color(0,255,0), 50);
   Strip1.Fade(Strip1.Color(0,0,0), Strip1.Color(0,255,0), speed, 1);
 
+
 }
 
 void loop(){
-  // update strip
+
   Strip1.Update();
-  // get a new reading from feed
   int newReading;
 
+
   if(millis()-lastGet>=getRate){
-    // set the new reading
     FeedData latest = gasVal.receive();
-    // reset timer
     lastGet = millis();
-    // convert to int
     if (latest.isValid()){
       if (latest.intValue(&newReading)){
-        // is it about the thresh?
         if(newReading > BASE_THRESHOLD){
           Serial.print(F("newReading: ")); Serial.println(newReading, DEC);
-          // some pixel logic to increase do decrease speed
           if(newReading != currentReading){
-            if(newReading < 200){
-              speed = 1000;
-            } else if(newReading > 200 && newReading < 300){
+            if(newReading < 100){
+              speed = 2000;
+            } else if(newReading > 100 && newReading < 120){
               speed = 500;
-            } else if(newReading > 300 && newReading < 400){
+            } else if(newReading > 120 && newReading < 250){
               speed = 200;
-            } else if(newReading >500){
+            } else if(newReading >250){
               speed = 80;
             }
-            // activate strip
-            timer0Fired = true;
-            timer0 = 0;
+            //Strip1.ActivePattern = FADE;
             Strip1.Fade(Strip1.Color(0,0,0), Strip1.Color(0,255,0), speed, 1);
+            //Strip1.Interval = speed;
             Serial.print(F("!Doing the thing - interval: ")); Serial.println(speed, DEC);
-            // set a timer or something
             // reset current reading
-
             currentReading = newReading;
 
           } else {
             Serial.println(F("nothing changed. do nothing."));
-            speed = 2000;
           }
         }
       }
     }else {
       Serial.println(F("Failed to receive the latest feed value!"));
     }
-    Serial.println(F("Waiting 1 minute until next reading"));
+    Serial.println(F("Waiting 10 seconds"));
   }
 
 }
@@ -434,13 +405,6 @@ void loop(){
 void Strip1Complete()
 {
 
-  if ((timer0Fired) && (timer0 > interval)) {
-
-    Serial.println("change the speed");
-
-    timer0Fired = false;
-
-  }
   Strip1.Reverse();
 
 }
