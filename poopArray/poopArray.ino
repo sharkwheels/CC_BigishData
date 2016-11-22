@@ -406,8 +406,7 @@ void loop(){
               speed = 80;
             }
             // activate strip
-            timer0Fired = true;
-            timer0 = 0;
+            
             Strip1.Fade(Strip1.Color(0,0,0), Strip1.Color(0,255,0), speed, 1);
             Serial.print(F("!Doing the thing - interval: ")); Serial.println(speed, DEC);
             // set a timer or something
@@ -434,13 +433,7 @@ void loop(){
 void Strip1Complete()
 {
 
-  if ((timer0Fired) && (timer0 > interval)) {
-
-    Serial.println("change the speed");
-
-    timer0Fired = false;
-
-  }
+  
   Strip1.Reverse();
 
 }
