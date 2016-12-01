@@ -1,3 +1,11 @@
+/*********************************************************************** 
+  CREATION && COMPUTATION - BIG(ISH) DATA 
+
+ * Sign Lights
+ * Nadine Lessio 
+ * Grabs Adafruit IO value and does some neo-pixeling
+******************************************************************************/
+
 /*
 Read from a private channel on Adafruit IO
 //http://core-electronics.com.au/tutorials/using-neopixels-with-particle.html

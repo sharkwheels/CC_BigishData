@@ -1,7 +1,8 @@
 /*********************************************************************** 
-  CREATION COMPUTATION - BIG(ISH) DATA 
+  CREATION && COMPUTATION - BIG(ISH) DATA 
 
  * Gas Sensor for PoopArray v1.0
+ * Nadine Lessio 
  * Sends the largest value collected to Adafruit IO every 5 minutes.
  * Very likely a giant battery hog and the sensor will overheat, but oh well. 
  * That's the point of a 1.0 right?
